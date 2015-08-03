@@ -1,0 +1,9 @@
+.single{
+	figure{
+		margin-top: 15px;
+		margin-bottom: 15px;
+		.img-responsive{
+			@include center-block();
+		}
+	}
+}

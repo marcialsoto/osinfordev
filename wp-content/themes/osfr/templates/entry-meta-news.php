@@ -1,0 +1,1 @@
+<time class="updated" datetime="<?= get_the_time('c'); ?>">Lima, <?= get_the_date(); ?></time>

@@ -1,0 +1,1 @@
+<?php get_template_part('templates/view', 'home-sidebar-2'); ?>
