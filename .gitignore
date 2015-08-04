@@ -29,18 +29,7 @@ node_modules
 # WordPress
 wp-config.php
 
-wp-content/uploads/data
-wp-content/uploads/2012
-wp-content/uploads/2013
-wp-content/uploads/2014
-wp-content/uploads/2015/01
-wp-content/uploads/2015/02
-wp-content/uploads/2015/03
-wp-content/uploads/2015/04
-wp-content/uploads/2015/05
-wp-content/uploads/2015/06
-wp-content/uploads/2015/07
-wp-content/uploads/images
+wp-content/uploads
 
 wp-content/themes/osfr/node_modules
 
