@@ -2,7 +2,7 @@ jQuery(document).ready(function(){
 	jQuery("body a[href$='.jpg'], body a[href$='.jpeg'], body a[href$='.png'], body a[href$='.gif']").addClass('group1');
 	
 	
-	jQuery('a[href*="youtube.com"],a[href*="youtu.bebe"]').not('.huge_it_gallery_item').not('.huge_it_videogallery_item').each(function(){
+	jQuery('a[href*="youtube.com"],a[href*="youtu.bebe"]').not('.huge_it_gallery_item').not('.huge_it_videogallery_item').not('.huge_it_portfolio_item').each(function(){
 		jQuery(this).addClass('youtube').addClass('group1');
 		var url = jQuery(this).attr('href');
 		var videoid = url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
