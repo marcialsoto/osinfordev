@@ -1,0 +1,61 @@
+body.buddypress{
+	&.home{
+		background-color: $color--brown--lighter; 
+	}
+	.container{
+		.content{
+			.main{
+				.inner{
+					#buddypress{
+						padding-left: 30px;
+						padding-right: 30px;
+						#item-header{
+							font-size: 14px;
+  							padding: 0;
+						}
+					}
+				}
+			}
+
+			.sidebar{
+				.widget{
+					margin-bottom: 20px;
+					.bp-login-widget-user-avatar{
+						padding-left: 20px;
+						padding-top: 12px;
+					}
+					.bp-login-widget-user-links{
+						padding-top: 10px;
+						padding-bottom: 12px;
+						.bp-login-widget-user-link, 
+						.bp-login-widget-user-logout{
+							padding-left: 70px;
+						}
+					}
+					.bp-site-wide-message{
+						.info.notice{
+							p{
+								padding:12px 20px;
+							}
+						}
+					}
+					.item-options{
+						padding:12px 20px 0;
+					}
+					.item-list{
+						padding:12px 20px !important;
+					}
+					.avatar-block{
+						padding-left: 20px;
+						padding-right: 20px;
+					}
+				}
+			}
+		}
+	}
+} 
+@media(min-width: $screen-sm-min){
+	body.buddypress.home .content .main {
+  		width: 75%;
+	}
+}
