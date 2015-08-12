@@ -31,3 +31,20 @@ foreach ($sage_includes as $file) {
   require_once $filepath;
 }
 unset($file, $filepath);
+
+/* Personalizaci{on del Login} */
+function my_login_stylesheet() {
+    wp_enqueue_style( 'custom-login', get_template_directory_uri() . '/login/styles/style-login.css' );
+    wp_enqueue_script( 'custom-login', get_template_directory_uri() . '/login/scripts/style-login.js' );
+}
+add_action( 'login_enqueue_scripts', 'my_login_stylesheet' );
+
+function my_login_logo_url() {
+    return home_url();
+}
+add_filter( 'login_headerurl', 'my_login_logo_url' );
+
+function my_login_logo_url_title() {
+    return 'Ir a Osinfor';
+}
+add_filter( 'login_headertitle', 'my_login_logo_url_title' );

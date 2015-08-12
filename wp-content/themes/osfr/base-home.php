@@ -67,7 +67,7 @@ use Roots\Sage\Wrapper;
     <div class="wrap section multimedia" role="document">
       <div class="container">
         <?php get_template_part('templates/section', 'multimedia'); ?>
-	<?php get_template_part('templates/section', 'iconos'); ?>
+	      <?php /* get_template_part('templates/section', 'iconos'); */ ?>
       </div>
     </div>
     <?php

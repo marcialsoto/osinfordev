@@ -66,6 +66,7 @@
         $('#slider__main').owlCarousel({
           items:3,
           nav: true,
+          dots: true,
           navText: ["<span class='glyphicon glyphicon-menu-left' aria-hidden='true'></span>", "<span class='glyphicon glyphicon-menu-right' aria-hidden='true'></span>"],
           merge: true,
           center: true,

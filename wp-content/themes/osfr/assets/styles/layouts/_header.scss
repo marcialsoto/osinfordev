@@ -27,7 +27,7 @@ header{
 		.navbar-header{
 			.super__nav__btn{}
 			.header__logo{
-				background: $color--orange url(../images/all__logo--bg.png) no-repeat top center; 
+				background: $color--green url(../images/all__logo--bg.png) no-repeat top center; 
 				position: relative;
 				width: 130px; 
 				height: 50px;
@@ -346,14 +346,14 @@ header{
 			}
 		}
 
-		.owl-controls{
-			position: absolute;
-			width: 100%;
-			height: 0;
-			margin: 0;
-			top: 50%;
+		/*.owl-controls{*/
 			.owl-nav{
 				@include make-lg-column(12);
+				position: absolute;
+				width: 100%;
+				height: 0;
+				margin: 0;
+				top: 50%;
 				.owl-prev, .owl-next{
 					background-color: $color--orange;
 					color: $color--orange--light;
@@ -372,7 +372,7 @@ header{
 					float: right;
 				}
 			}
-		}
+		/*}*/
 	}
 }
 
@@ -588,8 +588,8 @@ header{
 				}
 			}
 
-			.owl-controls{
-				top: 50%;
+			/*.owl-controls{
+				top: 50%;*/
 				.owl-nav{
   					float: none;
 					.owl-prev{ 
@@ -636,31 +636,29 @@ header{
 						}
 					}
 				}
-			}
+			/*}*/
 
 			&:hover{
-				.owl-controls{
-					.owl-nav{
-						.owl-prev{
-							-webkit-animation-duration: 1s;
-							animation-duration: 1s;
-							-webkit-animation-fill-mode: both;
-							animation-fill-mode: both;
-							-webkit-animation-name: fadeInLeft;
-							animation-name: fadeInLeft;
-							opacity: 1;
-						}
-						.owl-next{ 
-							-webkit-animation-duration: 1s;
-							animation-duration: 1s;
-							-webkit-animation-fill-mode: both;
-							animation-fill-mode: both;
-							-webkit-animation-name: fadeInRight;
-							animation-name: fadeInRight;
-							opacity: 1;
-						}
+				.owl-nav{
+					.owl-prev{
+						-webkit-animation-duration: 1s;
+						animation-duration: 1s;
+						-webkit-animation-fill-mode: both;
+						animation-fill-mode: both;
+						-webkit-animation-name: fadeInLeft;
+						animation-name: fadeInLeft;
+						opacity: 1;
 					}
-				}		
+					.owl-next{ 
+						-webkit-animation-duration: 1s;
+						animation-duration: 1s;
+						-webkit-animation-fill-mode: both;
+						animation-fill-mode: both;
+						-webkit-animation-name: fadeInRight;
+						animation-name: fadeInRight;
+						opacity: 1;
+					}
+				}	
 			}
 		}
 	}
