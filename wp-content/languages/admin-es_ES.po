@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Administration package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-07-04 19:52:42+0000\n"
+"PO-Revision-Date: 2015-08-12 11:12:13+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -6411,7 +6411,7 @@ msgstr "Blog oficial WordPress"
 
 #: wp-admin/includes/dashboard.php:958
 msgid "http://wordpress.org/news/feed/"
-msgstr "http://wordpress.org/news/feed/"
+msgstr "http://es.wordpress.org/feed/"
 
 #: wp-admin/includes/dashboard.php:949
 msgid "http://wordpress.org/news/"
