@@ -13,6 +13,59 @@ body.buddypress{
 							font-size: 14px;
   							padding: 0;
 						}
+						#item-nav{
+							.item-list-tabs{
+								background-color: $color--orange--light;
+								ul{
+									li{
+										a{
+											color: $color--orange--dark;
+											font-size: 13px;
+										}
+
+										&.current{
+											a{
+												background-color: $color--orange--dark;
+												color: $color--white;
+												@include opacity (1);
+												font-weight: normal;
+											}
+										}
+									}
+								}
+							}
+						}
+
+						#item-body{
+							.item-list-tabs{
+								background-color: $color--orange--dark;
+    							margin: 0;	
+								ul{
+									li{
+										a{
+											font-size: 11px;
+											color: $color--orange--light;
+										}
+
+										&.current{
+											a{
+												background-color: transparent;
+												color: $color--white;
+												@include opacity (1);
+												font-weight: normal;
+											}
+										}
+									}
+								}
+							}
+
+							.activity{
+								ul#activity-stream{
+									margin-top: 20px;
+									border-top: 1px solid transparent;
+								}
+							}
+						}
 					}
 				}
 			}
