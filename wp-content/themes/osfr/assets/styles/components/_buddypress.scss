@@ -36,6 +36,15 @@ body.buddypress{
 							}
 						}
 
+						#item-header{
+							#item-actions{
+								h3{
+									font-size: 14px;
+									padding: 0;
+								}
+							}
+						}
+
 						#item-body{
 							.item-list-tabs{
 								background-color: $color--orange--dark;
@@ -59,10 +68,28 @@ body.buddypress{
 								}
 							}
 
+							#whats-new-form{
+								margin-top: 20px;
+								.activity-greeting{
+									margin-left: 40px;
+								}
+							}
+
 							.activity{
 								ul#activity-stream{
 									margin-top: 20px;
 									border-top: 1px solid transparent;
+									.activity-content{
+										.activity-header{
+											p{
+												padding: 0; 
+												margin: 0;
+												img.avatar {
+													margin: 0 5px 0 0 !important;
+												}
+											}
+										}
+									}
 								}
 							}
 						}
