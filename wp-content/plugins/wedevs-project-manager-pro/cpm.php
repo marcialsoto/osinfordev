@@ -5,12 +5,12 @@
  * Description: A WordPress Project Management plugin. Simply it does everything and it was never been easier with WordPress.
  * Author: Tareq Hasan
  * Author URI: http://tareq.weDevs.com
- * Version: 1.3
+ * Version: 1.2.2
  * License: GPL2
  */
 
 /**
- * Copyright (c) 2013 Tareq Hasan (email: tareq@wedevs.com). All rights reserved.
+ * Copyright (c) 2015 Tareq Hasan (email: tareq@wedevs.com). All rights reserved.
  *
  * Released under the GPL license
  * http://www.opensource.org/licenses/gpl-license.php
@@ -34,6 +34,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * **********************************************************************
  */
+
 
 /**
  * Project Manager bootstrap class
@@ -89,10 +90,23 @@ class WeDevs_CPM {
     public $notification;
 
     /**
-     * @var CPM_Api $api
+     * @var CPM_Report $report
+     */
+    public $report;
+
+    /**
+     * @var CPM_API $report
      */
     public $api;
 
+    /**
+     * @var CPM_Comment $comment
+     */
+    public $comment;
+
+    /**
+     * CPM Constructor.
+     */
     function __construct() {
         $this->init();
 
@@ -100,34 +114,11 @@ class WeDevs_CPM {
 
         add_action( 'plugins_loaded', array( $this, 'cpm_content_filter' ) );
         add_action( 'plugins_loaded', array($this, 'load_textdomain') );
-
+        add_action( 'plugins_loaded', array($this, 'plugins_loaded') );
         add_action( 'wp_enqueue_scripts', array( $this, 'admin_scripts' ) );
-        add_filter( 'plugin_action_links', array($this, 'plugin_action_links'), 10, 2 );
+
         register_activation_hook( __FILE__, array($this, 'install') );
-    }
-
-    /**
-     * Add shortcut links to the plugin action menu
-     *
-     * @since 0.4.4
-     *
-     * @param array $links
-     * @param string $file
-     * @return array
-     */
-    function plugin_action_links( $links, $file ) {
-
-        if ( $file == plugin_basename( __FILE__ ) ) {
-            $new_links = array(
-                sprintf( '<a href="%s">%s</a>', 'http://wedevs.com/plugin/wp-project-manager/', __( 'Pro Version', 'cpm' ) ),
-                sprintf( '<a href="%s">%s</a>', 'http://wedevs.com/wp-project-manager-add-ons/', __( 'Add-ons', 'cpm' ) ),
-                sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=cpm_settings' ), __( 'Settings', 'cpm' ) )
-            );
-
-            return array_merge( $new_links, $links );
-        }
-
-        return $links;
+        register_deactivation_hook( __FILE__, array($this, 'deactivate') );
     }
 
     /**
@@ -142,7 +133,6 @@ class WeDevs_CPM {
         if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
-
         return self::$_instance;
     }
 
@@ -202,12 +192,12 @@ class WeDevs_CPM {
      * @since 1.1
      * @return type
      */
-    public function define_constants() {
-
-        $this->define( 'CPM_VERSION', '1.3' );
+    private function define_constants() {
+        $this->define( 'CPM_VERSION', '1.2.2' );
         $this->define( 'CPM_DB_VERSION', '1.1' );
         $this->define( 'CPM_PATH', dirname( __FILE__ ) );
         $this->define( 'CPM_URL', plugins_url( '', __FILE__ ) );
+        $this->define( 'CPM_PRO', true );
     }
 
     /**
@@ -219,7 +209,7 @@ class WeDevs_CPM {
      * @param  string|bool $value
      * @return type
      */
-    public function define( $name, $value ) {
+    private function define( $name, $value ) {
         if ( ! defined( $name ) ) {
             define( $name, $value );
         }
@@ -231,30 +221,29 @@ class WeDevs_CPM {
      * @since 0.1
      */
     function instantiate() {
-
+        if ( function_exists( 'json_api_init' ) ) {
+            $this->api   = CPM_API::instance();
+        }
         $this->project   = CPM_Project::getInstance();
         $this->message   = CPM_Message::getInstance();
         $this->task      = CPM_Task::getInstance();
         $this->milestone = CPM_Milestone::getInstance();
+        $this->comment   = CPM_Comment::getInstance();
+        $this->report    = CPM_Report::getInstance();
 
-        $this->activity     = CPM_Activity::getInstance();
-        $this->ajax         = CPM_Ajax::getInstance();
-        $this->notification = CPM_Notification::getInstance();
-
-        if ( function_exists( 'json_api_init' ) ) {
-            $this->api   = CPM_API::instance();
-        }
+        $this->activity     = new CPM_Activity();
+        $this->ajax         = new CPM_Ajax();
+        $this->notification = new CPM_Notification();
 
         // instantiate admin settings only on admin page
         if ( is_admin() ) {
             $this->admin   = new CPM_Admin();
+            $this->updates = new CPM_Updates();
             $this->upgrade = new CPM_Upgrade();
         }
-
-        do_action( 'cpm_instantiate', $this );
     }
 
-    /**
+     /**
      * page router instanciate
      *
      * @since 1.1
@@ -270,7 +259,9 @@ class WeDevs_CPM {
      * @return void
      */
     function includes() {
-        $this->router->includes();
+        if ( is_admin() ) {
+            $this->router->includes();
+        }
     }
 
     /**
@@ -279,10 +270,19 @@ class WeDevs_CPM {
      * @since 0.3.1
      */
     function install() {
-        do_action( 'cpm_install' );
-        update_option( 'cpm_version', $this->version );
-        update_option( 'cpm_db_version', $this->db_version );
+        CPM_Upgrade::getInstance()->plugin_upgrades();
+        wp_schedule_event( time(), 'daily', 'cpm_daily_digest' );
+    }
 
+    /**
+     * Deactivation actions
+     *
+     * @since 1.1
+     *
+     * @return void
+     */
+    public function deactivate() {
+        wp_clear_scheduled_hook( 'cpm_daily_digest' );
     }
 
     /**
@@ -295,6 +295,30 @@ class WeDevs_CPM {
     }
 
     /**
+     * Run actions on `plugins_loaded` hook
+     *
+     * @since 1.1
+     *
+     * @return void
+     */
+    public function plugins_loaded() {
+
+        if ( ! function_exists( 'cpm_get_option' ) ) {
+            include_once CPM_PATH . '/includes/functions.php';
+        }
+
+        if( cpm_get_option( 'daily_digest' ) == 'off' ) {
+            return;
+        }
+
+        if ( get_user_meta( get_current_user_id(), '_user_daily_digets_status', true ) == 'off' ) {
+            return;
+        }
+
+        new CPM_Digest();
+    }
+
+    /**
      * Load all the plugin scripts and styles only for the
      * project area
      *
@@ -302,7 +326,7 @@ class WeDevs_CPM {
      */
     static function admin_scripts() {
         $upload_size = intval( cpm_get_option( 'upload_limit') ) * 1024 * 1024;
-        wp_enqueue_script( 'jquery' );
+
         wp_enqueue_script( 'jquery-ui-core' );
         wp_enqueue_script( 'jquery-ui-autocomplete');
         wp_enqueue_script( 'jquery-ui-dialog' );
@@ -339,8 +363,55 @@ class WeDevs_CPM {
         wp_enqueue_style( 'jquery-ui', plugins_url( 'assets/css/jquery-ui-1.9.1.custom.css', __FILE__ ) );
         wp_enqueue_style( 'jquery-chosen', plugins_url( 'assets/css/chosen.css', __FILE__ ) );
 
-        do_action( 'cpm_admin_scripts' );
+    }
 
+    /**
+     * Load my task scripts
+     *
+     * @return void
+     */
+    static function my_task_scripts() {
+        self::admin_scripts();
+        wp_enqueue_script( 'cpm_mytask', plugins_url( 'assets/js/mytask.js', __FILE__ ), array('jquery', 'cpm_task'), false, true );
+    }
+
+    /**
+     * Load calendar scripts
+     *
+     * @return void
+     */
+    static function calender_scripts() {
+        self::admin_scripts();
+
+        wp_enqueue_script( 'fullcalendar', plugins_url( 'assets/js/fullcalendar.min.js', __FILE__ ), array('jquery'), false, true );
+        wp_enqueue_style( 'fullcalendar', plugins_url( 'assets/css/fullcalendar.css', __FILE__ ) );
+    }
+
+    /**
+     * Load calendar scripts
+     *
+     * @return void
+     */
+    static function report_scripts() {
+        wp_enqueue_script( 'jquery-ui-core' );
+        wp_enqueue_script( 'jquery-ui-datepicker' );
+        wp_enqueue_script( 'report', plugins_url( 'assets/js/report.js', __FILE__ ), array('jquery'), false, true );
+        wp_localize_script( 'report', 'CPM_Vars', array(
+            'ajaxurl'  => admin_url( 'admin-ajax.php' ),
+            'nonce'    => wp_create_nonce( 'cpm_nonce' ),
+            'message'  => cpm_message(),
+        ));
+        wp_enqueue_style( 'jquery-ui', plugins_url( 'assets/css/jquery-ui-1.9.1.custom.css', __FILE__ ) );
+        wp_enqueue_style( 'cpm_admin', plugins_url( 'assets/css/admin.css', __FILE__ ) );
+    }
+
+    /**
+     * Load progress scripts
+     *
+     * @return void
+     */
+    static function progress_scripts() {
+        self::admin_scripts();
     }
 
     /**
@@ -349,19 +420,52 @@ class WeDevs_CPM {
      * @since 0.1
      */
     function admin_menu() {
-
         $capability = 'read'; //minimum level: subscriber
+
+        $count_task = CPM_Task::getInstance()->mytask_count();
+        $current_task = isset( $count_task['current_task'] ) ? $count_task['current_task'] : 0;
+        $outstanding = isset( $count_task['outstanding'] ) ? $count_task['outstanding'] : 0;
+        $active_task =  $current_task + $outstanding;
+
+        $mytask_text = __( 'My Tasks', 'cpm' );
+
+        if ( $active_task ) {
+            $mytask_text = sprintf( __( 'My Tasks %s', 'cpm' ), '<span class="awaiting-mod count-1"><span class="pending-count">' . $active_task . '</span></span>');
+        }
 
         $hook = add_menu_page( __( 'Project Manager', 'cpm' ), __( 'Project Manager', 'cpm' ), $capability, 'cpm_projects', array($this, 'admin_page_handler'), 'dashicons-networking', 3 );
         add_submenu_page( 'cpm_projects', __( 'Projects', 'cpm' ), __( 'Projects', 'cpm' ), $capability, 'cpm_projects', array($this, 'admin_page_handler') );
+        $hook_my_task  = add_submenu_page( 'cpm_projects', __( 'My Tasks', 'cpm' ), $mytask_text, $capability, 'cpm_task', array($this, 'my_task') );
+        $hook_calender = add_submenu_page( 'cpm_projects', __( 'Calendar', 'cpm' ), __( 'Calendar', 'cpm' ), $capability, 'cpm_calendar', array($this, 'admin_page_handler') );
+
+
+        if ( cpm_manage_capability() ) {
+           $hook_reports  = add_submenu_page( 'cpm_projects', __( 'Reports', 'cpm' ), __( 'Reports', 'cpm' ), $capability, 'cpm_reports', array($this, 'admin_page_handler') );
+           add_action( 'admin_print_styles-' . $hook_reports, array($this, 'report_scripts') );
+
+           $hook_progress  = add_submenu_page( 'cpm_projects', __( 'Progress', 'cpm' ), __( 'Progress', 'cpm' ), $capability, 'cpm_progress', array($this, 'admin_page_handler') );
+           add_action( 'admin_print_styles-' . $hook_progress, array($this, 'progress_scripts') );
+        }
+
+
         if ( current_user_can( 'manage_options' ) ) {
             add_submenu_page( 'cpm_projects', __( 'Categories', 'cpm' ), __( 'Categories', 'cpm' ), $capability, 'edit-tags.php?taxonomy=project_category' );
         }
-        add_submenu_page( 'cpm_projects', __( 'Add-ons', 'cpm' ), __( 'Add-ons', 'cpm' ), $capability, 'cpm_addons', array($this, 'admin_page_addons') );
 
-        add_action( 'admin_print_styles-' . $hook, array( $this, 'admin_scripts' ) );
+        add_submenu_page( 'cpm_projects', __( 'Add-ons', 'cpm' ), __( 'Add-ons', 'cpm' ), 'manage_options', 'cpm_addons', array($this, 'admin_page_addons') );
+        add_action( 'admin_print_styles-' . $hook, array($this, 'admin_scripts') );
+        add_action( 'admin_print_styles-' . $hook_my_task, array($this, 'my_task_scripts') );
+        add_action( 'admin_print_styles-' . $hook_calender, array($this, 'calender_scripts') );
+    }
 
-        do_action( 'cpm_admin_menu', $capability, $this );
+    /**
+     * Render my tasks page
+     *
+     * @since 0.5
+     * @return void
+     */
+    function my_task() {
+        $this->router->my_task();
     }
 
     /**
@@ -395,4 +499,8 @@ function cpm() {
 }
 
 //cpm instance.
-$cpm = cpm();
+cpm();
+
+
+
+

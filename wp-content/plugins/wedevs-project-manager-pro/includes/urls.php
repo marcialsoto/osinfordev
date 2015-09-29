@@ -19,26 +19,6 @@ function cpm_url_projects() {
 
 function cpm_url_my_task() {
     if( isset($_GET['user_id']) && ! empty( $_GET['user_id'] ) ) {
-        $url_arg = '&user_id=' . $_GET['user_id']; 
-    } else {
-        $url_arg = '';
-    }
-    $url = sprintf( "%s?page=cpm_task&tab=my_task%s", admin_url( 'admin.php' ), $url_arg );
-    return apply_filters( 'cpm_url_my_task', $url );
-}
-
-function cpm_url_outstanding_task() {
-    $url = add_query_arg( array( 'tab' => 'my_task', 'subtab' => 'outstanding' ), cpm_url_my_task() );
-    return apply_filters( 'cpm_url_outstanding_task', $url );
-
-}
-function cpm_url_complete_task() {
-    $url = add_query_arg( array( 'tab' => 'my_task', 'subtab' => 'complete' ), cpm_url_my_task() );
-    return apply_filters( 'cpm_url_complete_task', $url );
-}
-
-/*function cpm_url_my_task() {
-    if( isset($_GET['user_id']) && ! empty( $_GET['user_id'] ) ) {
         $url_arg = '&user_id=' . $_GET['user_id'];
     } else {
         $url_arg = '';
@@ -55,7 +35,7 @@ function cpm_url_outstanding_task() {
 function cpm_url_complete_task() {
     $url = add_query_arg( array( 'tab' => 'complete' ), cpm_url_my_task() );
     return apply_filters( 'cpm_url_complete_task', $url );
-}*/
+}
 /**
  * Displays root URL for projects all
  *
@@ -99,6 +79,7 @@ function cpm_url_active() {
  */
 function cpm_url_project_details( $project_id ) {
     $url = sprintf( '%s?page=cpm_projects&tab=project&action=single&pid=%d', admin_url( 'admin.php' ), $project_id );
+
     return apply_filters( 'cpm_url_project_details', $url, $project_id );
 }
 

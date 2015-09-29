@@ -8,7 +8,7 @@ class CPM_Notification {
         add_action( 'cpm_project_update', array($this, 'project_update'), 10, 2 );
 
         add_action( 'cpm_comment_new', array($this, 'new_comment'), 10, 3 );
-        add_action( 'cpm_message_new', array($this, 'new_message'), 10, 2 );
+        //add_action( 'cpm_message_new', array($this, 'new_message'), 10, 2 );
 
         add_action( 'cpm_task_new', array($this, 'new_task'), 10, 3 );
         add_action( 'cpm_task_update', array($this, 'new_task'), 10, 3 );
@@ -18,25 +18,12 @@ class CPM_Notification {
         if ( !self::$_instance ) {
             self::$_instance = new CPM_Notification();
         }
-
         return self::$_instance;
-    }
-
-    /**
-     * Get site name
-     *
-     * @since 1.3
-     *
-     * @return string
-     */
-    public function get_site_name() {
-        return wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
     }
 
     function prepare_contacts() {
         $to = array();
         $bcc_status = cpm_get_option('email_bcc_enable');
-
         if ( isset( $_POST['notify_user'] ) && is_array( $_POST['notify_user'] ) ) {
 
             foreach ($_POST['notify_user'] as $user_id) {
@@ -64,14 +51,8 @@ class CPM_Notification {
      */
     function project_new( $project_id, $data ) {
 
-        $file_path    = dirname (__FILE__) . '/../views/emails/new-project.php';
+        $file_path   = dirname (__FILE__) . '/../views/emails/new-project.php';
         $content_path = apply_filters( 'cpm_new_project_email_content', $file_path );
-        $subject      = sprintf( __( '[%s] New Project Invitation: %s', 'cpm' ), $this->get_site_name(), get_post_field( 'post_title', $project_id ) );
-
-        // cutoff at 78th character
-        if ( cpm_strlen( $subject ) > 78 ) {
-            $subject = substr( $subject, 0, 78 ) . '&hellip;';
-        }
 
         if ( file_exists( $content_path ) ) {
             ob_start();
@@ -104,12 +85,6 @@ class CPM_Notification {
 
         $file_path   = dirname (__FILE__) . '/../views/emails/update-project.php';
         $content_path = apply_filters( 'cpm_update_project_email_content', $file_path );
-        $subject      = sprintf( __( '[%s] Updated Project Invitation: %s', 'cpm' ), $this->get_site_name(), get_post_field( 'post_title', $project_id ) );
-
-        // cutoff at 78th character
-        if ( cpm_strlen( $subject ) > 78 ) {
-            $subject = substr( $subject, 0, 78 ) . '&hellip;';
-        }
 
         if ( file_exists( $content_path ) ) {
             ob_start();
@@ -122,21 +97,13 @@ class CPM_Notification {
     }
 
     function complete_task( $list_id, $task_id, $data, $project_id ) {
-
-        $file_path    = CPM_PATH . '/views/emails/complete-task.php';
+        $file_path   = dirname (__FILE__) . '/../views/emails/complete-task.php';
         $content_path = apply_filters( 'cpm_complete_task_email_content', $file_path );
-        $subject      = sprintf( __( '[%s][%s] Task Completed: %s', 'cpm' ), $this->get_site_name(), get_post_field( 'post_title', $project_id ), get_post_field( 'post_title', $task_id ) );
-
-        // cutoff at 78th character
-        if ( cpm_strlen( $subject ) > 78 ) {
-            $subject = substr( $subject, 0, 78 ) . '&hellip;';
-        }
 
         if ( file_exists( $content_path ) ) {
             ob_start();
             include $content_path;
             $message = ob_get_clean();
-
             if ( $message ) {
                 $this->send( implode(', ', $users), $subject, $message);
             }
@@ -144,22 +111,15 @@ class CPM_Notification {
     }
 
     function new_message( $message_id, $project_id ) {
-        $file_path    = CPM_PATH . '/views/emails/new-message.php';
+        $file_path   = dirname (__FILE__) . '/../views/emails/new-message.php';
         $content_path = apply_filters( 'cpm_new_message_email_content', $file_path );
-        $subject      = sprintf( __( '[%s][%s] New Message: %s', 'cpm' ), $this->get_site_name(), get_post_field( 'post_title', $project_id ), get_post_field( 'post_title', $message_id ) );
-
-        // cutoff at 78th character
-        if ( cpm_strlen( $subject ) > 78 ) {
-            $subject = substr( $subject, 0, 78 ) . '&hellip;';
-        }
 
         if ( file_exists( $content_path ) ) {
             ob_start();
             include $content_path;
             $message = ob_get_clean();
-
             if ( $message ) {
-                $this->send( implode( ', ', $users ), $subject, $message );
+               $this->send( implode( ', ', $users ), $subject, $message );
             }
 
         }
@@ -172,15 +132,9 @@ class CPM_Notification {
      * @param array $comment_info the post data
      */
     function new_comment( $comment_id, $project_id, $data ) {
-        $file_path    = CPM_PATH . '/views/emails/new-comment.php';
+        $file_path   = dirname (__FILE__) . '/../views/emails/new-comment.php';
         $content_path = apply_filters( 'cpm_new_comment_email_content', $file_path );
-        $parent_post  =  get_comment( $comment_id );
-        $subject      = sprintf( __( '[%s][%s] New Comment on: %s', 'cpm' ), $this->get_site_name(), get_post_field( 'post_title', $project_id ), get_post_field( 'post_title', $parent_post->comment_post_ID ) );
-
-        // cutoff at 78th character
-        if ( cpm_strlen( $subject ) > 78 ) {
-            $subject = substr( $subject, 0, 78 ) . '&hellip;';
-        }
+        $parent_post =  get_comment( $comment_id );
 
         if ( file_exists( $content_path ) ) {
             ob_start();
@@ -198,8 +152,7 @@ class CPM_Notification {
         if ( ! $new_task_notification ) {
             return;
         }
-
-        $file_path    = CPM_PATH . '/views/emails/new-task.php';
+        $file_path   = dirname (__FILE__) . '/../views/emails/new-task.php';
         $content_path = apply_filters( 'cpm_new_task_email_content', $file_path );
 
         $_POST['task_assign'] = isset( $_POST['task_assign'] ) ? $_POST['task_assign'] : array();
@@ -223,7 +176,7 @@ class CPM_Notification {
             $to = sprintf( '%s', $user->user_email );
             if ( file_exists( $content_path ) ) {
                 ob_start();
-                include_once $content_path;
+                include $content_path;
                 $message = ob_get_clean();
                 if ( $message ) {
                    $this->send( $to, $subject, $message );
@@ -234,20 +187,32 @@ class CPM_Notification {
         }
     }
 
+     /**
+     * Mail render
+     * @param  string  $to
+     * @param  string  $subject
+     * @param  string  $message
+     * @param  integer $comment_post_id
+     * @return void
+     */
     function send( $to, $subject, $message, $comment_post_id = 0 ) {
 
         $bcc_status   = cpm_get_option( 'email_bcc_enable' );
         $blogname     = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
         $reply        = 'no-reply@' . preg_replace( '#^www\.#', '', strtolower( $_SERVER['SERVER_NAME'] ) );
-        $content_type = 'Content-Type: text/html';
+        $content_type = 'Content-Type: ' . cpm_get_option( 'email_type');
         $charset      = 'Charset: UTF-8';
         $from_email   = cpm_get_option( 'email_from' );
         $from         = "From: $blogname <$from_email>";
-        $reply        = apply_filters( 'cpm_reply_to', $to, $comment_post_id );
-        $reply_to     = "Reply-To: $reply";
 
-        if ( $bcc_status == 'on' ) {
-            $bcc = 'Bcc: '. $to;
+        $header           = dirname (__FILE__) . '/../views/emails/header.php';
+        $header_template  = apply_filters( 'cpm_email_header', $header, $to, $subject, $message );
+
+        if( $bcc_status == 'on' ) {
+            $bcc      = 'Bcc: '. $to;
+            $reply    = apply_filters( 'cpm_reply_to', $to, $comment_post_id );
+            $reply_to = "Reply-To: $reply";
+
             $headers = array(
                 $bcc,
                 $reply_to,
@@ -256,17 +221,24 @@ class CPM_Notification {
                 $from
             );
 
-            wp_mail( $reply, $subject, $message, $headers);
+            wp_mail( $reply, $subject, $message, $headers );
+
         } else {
+            $to = explode( ',', $to );
+            foreach ( $to as $key => $email ) {
 
-            $headers = array(
-                $reply_to,
-                $content_type,
-                $charset,
-                $from,
-            );
+                $reply    = apply_filters( 'cpm_reply_to', $email, $comment_post_id );
+                $reply_to = "Reply-To: $reply";
 
-            wp_mail( $to, $subject, $message, $headers );
+                $headers = array(
+                    $reply_to,
+                    $content_type,
+                    $charset,
+                    $from,
+                );
+
+                wp_mail( $email, $subject, $message, $headers );
+            }
         }
     }
 

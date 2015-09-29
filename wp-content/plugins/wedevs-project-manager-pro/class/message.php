@@ -120,7 +120,7 @@ class CPM_Message {
             'post_status'  => 'publish'
         );
 
-        if ( $is_update ) {
+        if( $is_update ) {
             $postarr['ID'] = $message_id;
             $message_id = wp_update_post( $postarr );
         } else {
@@ -131,6 +131,7 @@ class CPM_Message {
             $milestone_id = isset( $post['milestone'] ) ? (int) $post['milestone'] : 0;
 
             update_post_meta( $message_id, '_milestone', $milestone_id );
+
             update_post_meta( $message_id, '_message_privacy', $message_privacy );
 
             //if there is any file, update the object reference

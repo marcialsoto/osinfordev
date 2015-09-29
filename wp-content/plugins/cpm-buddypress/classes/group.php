@@ -22,15 +22,10 @@ if ( class_exists( 'BP_Group_Extension' ) ) :
          */
         function __construct() {
 
-            $this->parent_path = dirname( dirname( __FILE__ ) ) . '/wedevs-project-manager';
-            $this->install_plugin();
-
-            $args = array(
-                'slug' => sanitize_title( __( cpm_bp_slug_name(), 'cpmbp' ) ),
-                'name' => __( 'Projects', 'cpmbp' ),
-            );
-
-            parent::init( $args );
+            $this->parent_path = CPM_PATH;
+    
+            $this->name = __( 'Projects', 'cpmbp' );
+            $this->slug = sanitize_title( __( cpm_bp_slug_name(), 'cpmbp' ) );
 
             $this->includes();
             $this->form_actions();
@@ -44,6 +39,9 @@ if ( class_exists( 'BP_Group_Extension' ) ) :
          * @return void
          */
         function form_actions() {
+            if ( ! bp_is_group()  ) {
+                return;
+            }
             if ( is_admin() && ! isset( $_POST['cpm_bp_url'] ) ) {
                 return;
             }
@@ -85,44 +83,6 @@ if ( class_exists( 'BP_Group_Extension' ) ) :
         }
 
         /**
-         * Check if the WP Project Manager plugin installed
-         *
-         * @since 1.0
-         * @return boolean
-         */
-        function is_plugin_installed() {
-
-            require_once ABSPATH . 'wp-admin/includes/plugin.php';
-            $plugin_dir = ABSPATH . 'wp-content/plugins';
-
-            if ( is_plugin_active( 'wedevs-project-manager/cpm.php' ) ) {
-                $this->parent_path = $plugin_dir . '/wedevs-project-manager';
-
-                return true;
-            } else if ( is_plugin_active( 'wedevs-project-manager-pro/cpm.php' ) ) {
-                $this->parent_path = $plugin_dir . '/wedevs-project-manager-pro';
-
-                return true;
-            }
-
-            return false;
-        }
-
-        /**
-         * Checks if the parent plugin is already installed, otherwise deactivate
-         * itself.
-         *
-         * @since 1.0
-         */
-        function install_plugin() {
-
-            if ( ! $this->is_plugin_installed() ) {
-                deactivate_plugins( __FILE__ );
-                exit( '"WP Project Manager" plugin is not installed. Install the plugin first.' );
-            }
-        }
-
-        /**
          * Includes all required files if the parent plugin is intalled
          *
          * @since 1.0
@@ -140,11 +100,13 @@ if ( class_exists( 'BP_Group_Extension' ) ) :
             $base_url = isset( $_REQUEST['cpm_bp_url'] ) ? $_REQUEST['cpm_bp_url'] : bp_get_group_permalink( groups_get_current_group() );
 
             // load url filters
-            if ( bp_is_group() ) {
+            if ( bp_is_group() && bp_is_active( 'groups' ) ) {
                 require_once dirname( __FILE__ ) . '/urls.php';
                 new CPM_BP_Frontend_URLs( $base_url, $this->slug );
 
-            } else if ( isset( $_REQUEST['cpm_bp_url'] ) ) {
+            } 
+
+            if ( isset( $_REQUEST['cpm_bp_url'] ) ) {
                 require_once dirname( __FILE__ ) . '/urls.php';
                 new CPM_BP_Frontend_URLs( $base_url, $this->slug );
             }
@@ -207,6 +169,7 @@ if ( class_exists( 'BP_Group_Extension' ) ) :
          * @since 1.0
          */
         function list_projects() {
+
             $project_obj    = CPM_Project::getInstance();
             $projects       = $project_obj->get_projects();
             $total_projects = $projects['total_projects'];
@@ -268,8 +231,8 @@ if ( class_exists( 'BP_Group_Extension' ) ) :
                             </div>
                         <?php } ?>
 
-                        <a title="<?php echo get_the_title( $project->ID ); ?>"
-                           href="<?php echo cpm_url_project_details( $project->ID ); ?>">
+                        <a title="<?php echo get_the_title( $project->ID ); ?>" href="<?php echo cpm_url_project_details( $project->ID ); ?>">
+                            
                             <h5><?php echo cpm_excerpt( get_the_title( $project->ID ), 30 ); ?></h5>
 
                             <div

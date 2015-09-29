@@ -1114,7 +1114,6 @@ ul.cpm-activity ul li:before {
   padding-bottom: 5px;
   margin-bottom: 5px;
   display: block;
-  width: 100% !important;
 }
 .cpm-comment-form input[type=file],
 .cpm-message-form input[type=file],
@@ -1227,12 +1226,6 @@ ul.cpm-activity ul li:before {
 .cpm-milestone-form .submit {
   padding: 10px 0 0 0;
 }
-.cpm-comment-form .notify-users label,
-.cpm-message-form .notify-users label,
-.cpm-milestone-form .notify-users label {
-  display: inline-block;
-  width: 31%;
-}
 /*--------------------------------------------------
 :: Task List
 -------------------------------------------------- */
@@ -1278,8 +1271,7 @@ ul.cpm-activity ul li:before {
   text-decoration: line-through;
 }
 .cpm-single-task .cpm-todo-wrap input[type="checkbox"] {
-  /* margin-left: -20px; */
-  margin-left: -1px;
+  margin-left: -20px;
   margin-right: 2px;
   margin-top: 0;
 }
@@ -1475,8 +1467,7 @@ ul.cpm-todolists article.cpm-todolist > ul li .cpm-todo-wrap {
   position: relative;
 }
 ul.cpm-todolists article.cpm-todolist > ul li .cpm-todo-wrap input[type="checkbox"] {
-  /* margin-left: -11px; */
-  margin-left: -1px;
+  margin-left: -11px;
   margin-right: 2px;
   margin-top: -3px;
 }
@@ -2178,11 +2169,4 @@ ul.cpm-files li .cpm-file-action .comment-number {
 #cpm-progress-wrap .cpm-activity-heads span {
   display: inline-block;
   padding-top: 15px;
-}
-.cpm-pro-notice {
-  padding: 25px;
-}
-.cpm-pro-notice .cpm-text {
-  margin-bottom: 20px;
-  font-size: 20px;
 }

@@ -208,6 +208,19 @@ function cpm_task_new_form( $list_id, $project_id, $task = null, $single = false
             <?php cpm_task_assign_dropdown( $project_id, $assigned_to ); ?>
         </div>
 
+        <?php if( cpm_user_can_access( $project_id, 'todo_view_private' ) ) { ?>
+            <div class="cpm-make-privacy">
+                <label>
+                    <?php
+                        $task_ID = isset( $task->ID ) ? $task->ID : '';
+                        $check_val = get_post_meta( $task_ID, '_task_privacy', true );
+                        $check_val = empty( $check_val ) ? '' : $check_val;
+                    ?>
+                    <input type="checkbox" <?php checked( 'yes', $check_val ); ?> value="yes" name="task_privacy">
+                    <?php _e( 'Private', 'cpm' ); ?>
+                </label>
+            </div>
+        <?php } ?>
 
         <?php do_action( 'cpm_task_new_form', $list_id, $project_id, $task ); ?>
 
@@ -269,7 +282,22 @@ function cpm_tasklist_form( $project_id, $list = null ) {
                 <?php echo CPM_Milestone::getInstance()->get_dropdown( $project_id, $milestone ); ?>
             </select>
         </div>
+        <?php
 
+            if ( cpm_user_can_access( $project_id, 'tdolist_view_private' ) ) {
+                ?>
+                <div class="cpm-make-privacy">
+                    <label>
+                        <?php
+                            $list_ID = isset( $list->ID ) ? $list->ID : '';
+                            $check_val = get_post_meta( $list_ID, '_tasklist_privacy', true );
+                            $check_val = empty( $check_val ) ? '' : $check_val;
+                        ?>
+                        <input type="checkbox" <?php checked( 'yes', $check_val ); ?> value="yes" name="tasklist_privacy">
+                        <?php _e( 'Private', 'cpm' ); ?>
+                    </label>
+                </div>
+        <?php } ?>
         <?php do_action( 'cpm_tasklist_form', $project_id, $list ); ?>
 
         <div class="item submit">
@@ -621,7 +649,20 @@ function cpm_message_form( $project_id, $message = null ) {
                     <?php echo CPM_Milestone::getInstance()->get_dropdown( $project_id, $milestone ); ?>
                 </select>
             </div>
-            <?php do_action( 'cpm_message_privicy_field', $project_id, $message ); ?>
+
+            <?php if ( cpm_user_can_access( $project_id, 'msg_view_private' ) ) { ?>
+                <div class="cpm-make-privacy">
+                    <label>
+                        <?php
+                            $message_id = isset( $message->ID ) ? $message->ID : '';
+                            $check_val = get_post_meta( $message_id, '_message_privacy', true );
+                            $check_val = empty( $check_val ) ? '' : $check_val;
+                        ?>
+                        <input type="checkbox" <?php checked( 'yes', $check_val ); ?> value="yes" name="message_privacy">
+                        <?php _e( 'Private', 'cpm' ); ?>
+                    </label>
+                </div>
+            <?php } ?>
 
             <div class="cpm-attachment-area">
                 <?php cpm_upload_field( $id, $files ); ?>
@@ -704,6 +745,23 @@ function cpm_milestone_form( $project_id, $milestone = null ) {
                     wp_editor( $content, 'cpm-milestone-editor-' . $id , array( 'media_buttons' => false, 'textarea_name' => 'milestone_detail', 'textarea_rows' => 10, 'media_buttons' => false, 'quicktags' => false, 'teeny' => true  ) );
                 ?>
             </div>
+
+            <?php
+            if( cpm_user_can_access( $project_id, 'milestone_view_private' ) ) {
+
+            ?>
+                <div class="cpm-make-privacy">
+                    <label>
+                        <?php
+                            $milestone_ID = isset( $milestone->ID ) ? $milestone->ID : '';
+                            $check_val = get_post_meta( $milestone_ID, '_milestone_privacy', true );
+                            $check_val = empty( $check_val ) ? '' : $check_val;
+                        ?>
+                        <input type="checkbox" <?php checked( 'yes', $check_val ); ?> value="yes" name="milestone_privacy">
+                        <?php _e( 'Private', 'cpm' ); ?>
+                    </label>
+                </div>
+            <?php } ?>
 
             <?php do_action( 'cpm_milestone_form', $project_id, $milestone ); ?>
 
@@ -876,7 +934,7 @@ function cpm_project_form( $project = null ) {
         <div class="cpm-form-item project-name">
             <input type="text" name="project_name" id="project_name" placeholder="<?php esc_attr_e( 'Name of the project', 'cpm' ) ?>" value="<?php echo esc_attr( $name ); ?>" size="45" />
         </div>
-        
+
         <div class="cpm-form-item project-category">
             <?php
             if ( $project ) {
@@ -891,7 +949,7 @@ function cpm_project_form( $project = null ) {
          </div>
 
         <div class="cpm-form-item project-detail">
-            <textarea name="project_description" class="cpm-project-description" id="" cols="50" rows="3" placeholder="<?php _e( 'Some details about the project (optional)', 'cpm' ); ?>"><?php echo esc_textarea( $details ); ?></textarea>
+            <textarea name="project_description" id="" cols="50" rows="3" placeholder="<?php _e( 'Some details about the project (optional)', 'cpm' ); ?>"><?php echo esc_textarea( $details ); ?></textarea>
         </div>
         <div class="cpm-form-item cpm-project-role">
             <table><?php echo CPM_Ajax::getInstance()->user_role_table_generator( $project ); ?></table>

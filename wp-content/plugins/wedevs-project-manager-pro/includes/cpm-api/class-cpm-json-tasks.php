@@ -135,7 +135,11 @@ class CPM_JSON_Tasks {
 
 		return $response;
 	}
-
+	'task_text'    => 'test',
+	'task_privacy' => 'yes' or 'no',
+	'task_assign'  => array( '{user_id}', '{user_id}', '{user_id}' ),
+	'task_due'     => '2015-05-17 08:25:09',
+	'task_start'   => '2015-06-17 08:25:09'
 	/**
 	 * Create a new task.
 	 *

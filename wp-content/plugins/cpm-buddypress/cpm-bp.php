@@ -5,7 +5,7 @@
  * Description: BuddyPress integration add-on for WP Project Manager.
  * Author: weDevs Team
  * Author URI: http://weDevs.com
- * Version: 1.1.1
+ * Version: 1.1.2
  * License: GPL2
  */
 
@@ -54,8 +54,6 @@ class CPM_BP {
     public function __construct() {
 
         add_action( 'wp_enqueue_scripts', array( 'WeDevs_CPM', 'admin_scripts' ) );
-        add_action( 'wp_enqueue_scripts', array( 'WeDevs_CPM', 'calender_scripts' ) );
-        add_action( 'wp_enqueue_scripts', array( 'WeDevs_CPM', 'my_task_scripts' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'self_scripts' ) );
 
@@ -74,12 +72,7 @@ class CPM_BP {
         add_filter( 'cpm_all_project_search_query_arg', array( $this, 'cpm_all_project_search_query_arg' ), 10, 2 );
         add_filter( 'cpm_pre_user_query_where', array( $this, 'cpm_pre_user_query_where' ), 10, 2 );
         add_action( 'groups_leave_group', array($this, 'after_leave_group'), 10, 2 );
-
-
-        add_action( 'groups_leave_group', array( $this, 'after_leave_group' ), 10, 2 );
-
         add_action( 'groups_remove_member', array( $this, 'groups_remove_member' ), 10, 2 );
-        add_action( 'groups_member_after_save', array( $this, 'buddypress_action' ) );
     }
 
     /**
@@ -233,6 +226,10 @@ class CPM_BP {
      * @return void
      */
     function check_member_status( $self ) {
+
+        if ( ! groups_is_user_member( $self->user_id, $self->group_id ) ) {
+            return;
+        }
         $projects = $this->get_projects_from_group_id( $self->group_id );
 
         foreach ( $projects->posts as $key => $project ) {
@@ -555,7 +552,7 @@ class CPM_BP {
      * @since 1.0
      */
     function enqueue_scripts() {
-        wp_enqueue_style( 'cpm-bp-style', plugins_url( 'css/style.css', __FILE__ ) );
+        wp_enqueue_style( 'cpm-bp-style', plugins_url( 'assets/css/style.css', __FILE__ ) );
     }
 
     /**

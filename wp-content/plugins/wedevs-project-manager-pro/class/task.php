@@ -17,11 +17,6 @@ class CPM_Task {
         add_action( 'cpm_after_new_task', array($this, 'mytask_flush_cache') );
         add_action( 'cpm_after_update_task', array($this, 'mytask_flush_cache') );
         add_action( 'cpm_delete_task_after', array($this, 'mytask_flush_cache') );
-
-        // Time Log
-        add_action( 'cmp_my_task_subtab_content', array($this, 'my_task_subtab_content'), 10, 4 );
-        add_filter( 'cpm_task_list_url', array($this, 'user_task_details'), 10, 4 );
-        add_filter( 'cpm_time_log_url', array($this, 'user_time_log'), 10, 4 );
     }
 
     function task_count() {
@@ -76,65 +71,7 @@ class CPM_Task {
         return self::$_instance;
     }
 
-
     function current_user_task( $user_id ) {
-       
-        global $wpdb;
-
-        $subtab = isset( $_GET['subtab'] ) ? $_GET['subtab'] : false;
-
-        $subtab = apply_filters( 'cpm_my_task_status', $subtab );
-
-        $tab_nav = isset( $_GET['tab_nav'] ) ? $_GET['tab_nav'] : false;
-
-        $tab_nav = apply_filters( 'cpmtt_my_day_basis_status', $tab_nav );
-
-        //var_dump($subtab); //die();
-        
-        if ( isset( $_GET['tab'] ) && isset( $_GET['subtab'] ) && $subtab == 'outstanding' ) {
-
-            $query1 = "AND n.meta_key = '_completed' AND n.meta_value = '0'";
-            $query2 = "AND due.meta_value != '' AND STR_TO_DATE( due.meta_value, '%Y-%m-%d') < STR_TO_DATE( NOW(), '%Y-%m-%d')";
-        } else if ( isset( $_GET['tab'] ) &&  isset( $_GET['subtab'] ) && $subtab == 'complete' ) {
-            
-            $query1 = "AND n.meta_key = '_completed' AND n.meta_value = '1'";
-            $query2 = '';
-        } else {
-            $query1 = "AND n.meta_key = '_completed' AND n.meta_value = '0'";
-            $query2 = "AND ( due.meta_value = '' OR STR_TO_DATE( due.meta_value, '%Y-%m-%d') >= STR_TO_DATE( NOW(), '%Y-%m-%d') ) ";
-        }
-
-        $que = "SELECT t.post_title as task, t.comment_count as comment_count, t.ID as task_id, tl.post_title as list, tl.ID as task_list_id,
-                    p.post_title as project_title, p.ID as project_id, m.meta_value as assigned_to, n.meta_value as completed, due.meta_value as due_date,
-                    strday.meta_value as start_date
-                FROM `$wpdb->posts` AS t
-                LEFT JOIN $wpdb->posts AS tl ON t.post_parent = tl.ID
-                LEFT JOIN $wpdb->posts AS p ON tl.post_parent = p.ID
-                LEFT JOIN $wpdb->postmeta AS m ON m.post_id = t.ID
-                LEFT JOIN $wpdb->postmeta AS n ON n.post_id = t.ID
-                LEFT JOIN $wpdb->postmeta AS due ON due.post_id = t.ID
-                LEFT JOIN $wpdb->postmeta AS strday ON strday.post_id = t.ID
-                WHERE t.post_type = 'task' AND t.post_status = 'publish'
-                    AND m.meta_key = '_assigned' AND m.meta_value = $user_id
-                    $query1
-                    AND strday.meta_key = '_start'
-                    AND due.meta_key = '_due' $query2
-                    AND p.post_title is not null
-                ORDER BY project_id DESC";
-        //echo '<pre>'; print_r($que); die();
-        $tasks = $wpdb->get_results( $que );
-        
-        $project = array();
-        foreach ($tasks as $task) {
-            $projects[$task->project_id]['tasks'][] = $task;
-            $projects[$task->project_id]['title'] = $task->project_title;
-        }
-        $projects = isset( $projects ) ? $projects : '';
-
-        return $projects;
-    }
-
-/*    function current_user_task( $user_id ) {
         global $wpdb;
 
         if ( isset( $_GET['tab'] ) && $_GET['tab'] == 'outstanding' ) {
@@ -178,7 +115,7 @@ class CPM_Task {
         $projects = isset( $projects ) ? $projects : '';
 
         return $projects;
-    }*/
+    }
 
 
     /**
@@ -384,9 +321,7 @@ class CPM_Task {
             $data['ID'] = $task_id;
             $task_id = wp_update_post( $data );
         } else {
-            
             $task_id = wp_insert_post( $data );
-         
         }
 
         if ( $task_id ) {
@@ -847,90 +782,6 @@ class CPM_Task {
             'total' => count( $tasks ),
             'completed' => array_sum( wp_list_pluck( $tasks, 'completed' ) )
         );
-    }
-
-    /****************************************************************
-     *
-     * Time Log
-     * 
-     ****************************************************************/
-    function my_task_header_tab( $active_tab = false ) {
-        $menus = $this->my_task_nav();
-        
-        echo '<h2 class="nav-tab-wrapper">';
-       
-        foreach ( $menus as $key => $value ) {
-            $active = ( $key == $active_tab ) ? 'nav-tab-active' : '';
-            ?> 
-                <a id="cpm_general-tab" class="nav-tab <?php echo $active; ?>" href="<?php echo esc_attr($value); ?>">
-                <?php echo $key; ?>
-                </a>
-            <?php
-        }
-        
-        echo '</h2>';
-    }
-
-    function my_task_nav() {
-        $nav = array(
-            __( 'Task', 'cpm' ) => cpm_url_my_task(),
-        );
-
-        return apply_filters( 'cpm_my_task_tab_nav', $nav );
-    }
-
-    function my_task_header_subtab(  $active_sub_tab = false, $attr = array() ) {
-        $sub_menus = $this->my_task_sub_nav();
-        ?>
-        <ul class="list-inline order-statuses-filter">
-            <?php
-
-                foreach ( $sub_menus as $sub_key => $sub_menu ) {
-                    $active = ( strtolower($sub_key) == strtolower($active_sub_tab) ) ? 'active' : '';
-                    ?> 
-                        <li class="<?php echo $active; ?>"> 
-                       
-                            <a href="<?php echo $sub_menu; ?>">
-                                <?php 
-                                    echo $sub_key; 
-                                    do_action('cmp_my_task_subtab_content', $sub_menu, $sub_key, $active_sub_tab, $attr );
-                                ?> 
-                            </a>
-
-                        </li>
-                    <?php 
-                }
-                
-            ?>
-        </ul>
-        <?php
-    }
-
-    function my_task_sub_nav() {
-        $nav = array(
-            __( 'Current Task', 'cpm' )     => cpm_url_my_task(),
-            __( 'Outstanding Task', 'cpm' ) => cpm_url_outstanding_task(),
-            __( 'Completed Task', 'cpm' )   => cpm_url_complete_task(),
-        );
-
-        return apply_filters( 'cpm_my_task_sub_tab_nav', $nav );
-    }
-
-    function my_task_subtab_content( $sub_menu, $sub_key, $active_sub_tab, $attr ) {
-        $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : ''; 
-        if( empty( $tab ) || $tab == 'my_task' ) {
-            ?>
-                (<span class="cpm-mytask-count"><?php echo isset( $attr[$sub_key] ) ? $attr[$sub_key] : 0 ; ?></span>)  
-            <?php
-        }
-    }
-
-    function user_task_details( $url ) {
-       return $url;
-    }
-    
-    function user_time_log( $url ) {
-        return $url;
     }
 
 }

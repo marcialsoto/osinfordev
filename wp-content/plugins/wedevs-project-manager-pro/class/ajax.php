@@ -69,7 +69,7 @@ class CPM_Ajax {
         add_action( 'wp_ajax_cpm_project_archive', array( $this, 'archive') );
         add_action( 'wp_ajax_cpm_project_duplicate', array( $this, 'project_duplicate' ) );
 
-        //add_action( 'wp_ajax_cpm_get_events', array( $this, 'get_events' ) );
+        add_action( 'wp_ajax_cpm_get_events', array( $this, 'get_events' ) );
 
         add_action( 'wp_ajax_cpm_calender_update_duetime', array( $this, 'update_task_time' ) );
         add_action( 'wp_ajax_all_search', array( $this, 'all_search' ) );
@@ -77,8 +77,6 @@ class CPM_Ajax {
 
         add_action( 'wp_ajax_cpm_project_reports', array( $this, 'report' ) );
         add_action( 'wp_ajax_cpm_get_projects_activity', array( $this, 'get_projects_activity' ) );
-        // Mension
-        add_action( 'wp_ajax_cpmm_user_mension', array( $this, 'mension_user' ) );
 
     }
 
@@ -207,7 +205,7 @@ class CPM_Ajax {
                     $url = cpm_url_project_details( $post->ID );
                     $category = __( 'Project: ', 'cpm' );
                     $items[] = array(
-                        'label' => '<div class="cpm-all-search-item"><a href="'.$url.'"><strong>'. $category. '</strong>'. $post->post_title.'</a></div>',
+                        'label' => '<div class="cpm-all-search-item"><a href="'.$url.'"><strong>'. $category .'</strong>'. $post->post_title.'</a></div>',
                     );
                     break;
 
@@ -274,6 +272,7 @@ class CPM_Ajax {
 
 
     function post_where( $where, &$wp_query ) {
+        echo $wp_query; die();
         $where .= 'AND p.ID IN(4)';
         return $where;
     }
@@ -466,8 +465,10 @@ class CPM_Ajax {
                                 <input type="radio" <?php checked( 'co_worker', $array['role'] ); ?> id="cpm-co-worker-<?php echo $name; ?>" name="role[<?php echo $array['id']; ?>]" value="co_worker">
                                 <label for="cpm-co-worker-<?php echo $name; ?>"><?php _e( 'Co-worker', 'cpm' ); ?></label>
                             </td>
-                            <?php do_action( 'cpm_update_project_client_field', $array, $name ); ?>
-
+                            <td>
+                                <input type="radio" <?php checked( 'client', $array['role'] ); ?> id="cpm-client-<?php echo $name; ?>" name="role[<?php echo $array['id']; ?>]" value="client">
+                                <label for="cpm-client-<?php echo $name; ?>"><?php _e( 'Client', 'cpm' ); ?></label>
+                            </td>
                             <td><a hraf="#" class="cpm-del-proj-role cpm-assign-del-user"><span class="dashicons dashicons-trash"></span> <span class="title"><?php _e('Delete','cpm'); ?></span></a></td>
                         </tr>
 
@@ -942,7 +943,7 @@ class CPM_Ajax {
         check_ajax_referer( 'cpm_message' );
         $posted = $_POST;
 
-        $files      = array();
+        $files = array();
         $project_id = isset( $posted['project_id'] ) ? intval( $posted['project_id'] ) : 0;
 
         if ( isset( $posted['cpm_attachment'] ) ) {
@@ -950,13 +951,13 @@ class CPM_Ajax {
         }
 
         $message_obj = CPM_Message::getInstance();
-        $message_id  = $message_obj->create( $project_id, $posted, $files );
+        $message_id = $message_obj->create( $project_id, $posted, $files );
 
         if ( $message_id ) {
             echo json_encode( array(
                 'success' => true,
-                'id'      => $message_id,
-                'url'     => cpm_url_single_message( $project_id, $message_id )
+                'id' => $message_id,
+                'url' => cpm_url_single_message( $project_id, $message_id )
             ) );
 
             exit;
@@ -1122,31 +1123,6 @@ class CPM_Ajax {
 
         wp_send_json_success( $user_info );
     }
-    function mension_user() {
-
-        $users = get_users( array(
-            'search' => '*' . $_POST['term'] . '*',
-            'search_columns' => array( 'user_login', 'user_email', 'nicename' ),
-        ) );
-
-        foreach( $users as $user) {
-            $data[] = array(
-                'label' => $user->display_name
-            );
-        }
-
-        if( isset($data) && count($data) ) {
-            $user_info = json_encode( $data );
-        } else {
-            $data[] = array(
-                'label' => '<p>' . __( 'No user found!', 'cpm' ) . '</p>',
-            );
-            $user_info = json_encode( $data );
-        }
-
-        wp_send_json_success( $user_info );
-    }
-
 
     function create_user_meta( $display_name, $user_id ) {
         $name = str_replace(' ', '_', $display_name );
@@ -1165,13 +1141,30 @@ class CPM_Ajax {
                     <input type="radio" checked="checked" id="cpm-co-worker-<?php echo $name; ?>" name="role[<?php echo $user_id; ?>]" value="co_worker">
                     <label for="cpm-co-worker-<?php echo $name; ?>"><?php _e( 'Co-worker', 'cpm' ); ?></label>
                 </td>
-                <?php do_action( 'cpm_new_project_client_field', $user_id, $name ); ?>
+                <td>
 
+                    <input type="radio" id="cpm-client-<?php echo $name; ?>" name="role[<?php echo $user_id; ?>]" value="client">
+                    <label for="cpm-client-<?php echo $name; ?>"><?php _e( 'Client', 'cpm' ); ?></label>
+                </td>
                 <td><a hraf="#" class="cpm-del-proj-role cpm-assign-del-user"><span class="dashicons dashicons-trash"></span> <span class="title"><?php _e('Delete','cpm'); ?></span></a></td>
             </tr>
 
         <?php
         return ob_get_clean();
+    }
+
+    function get_events() {
+
+        $events = CPM_Calendar::getInstance()->get_events();
+
+        if ( $events ) {
+            echo json_encode( $events );
+        } else {
+            echo json_encode( array(
+                'success' => false
+            ) );
+        }
+        exit;
     }
 
 }

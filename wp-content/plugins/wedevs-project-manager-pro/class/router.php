@@ -24,72 +24,100 @@ class CPM_Router {
 		return self::$_instance;
 	}
 
-	
+	/**
+     * Render my tasks page
+     *
+     * @since 1.1
+     * @return void
+     */
+	function my_task() {
+		require_once CPM_PATH . '/views/task/my-task.php';
+	}
 
 	/**
-	 * Shows the add-ons page on admin
-	 *
-	 * @since 1.1
-	 * @return void
-	 */
+     * Shows the add-ons page on admin
+     *
+     * @since 1.1
+     * @return void
+     */
 	function admin_page_addons() {
-		include_once CPM_PATH . '/includes/add-ons.php';
+		include CPM_PATH . '/includes/add-ons.php';
 	}
 
 	/**
-	 * Include the required files
-	 *
-	 * @since 1.1
-	 * @return void
-	 */
+     * Include the required files
+     *
+     * @since 1.1
+     * @return void
+     */
 	function includes() {
-		if ( cpm_is_pro() ) {
-			include_once CPM_PATH . '/includes/pro/loader.php';
-		} else {
-			include_once CPM_PATH . '/includes/free/loader.php';
-		}
+        if ( is_admin() ) {
+            include CPM_PATH . '/includes/urls.php';
+            include CPM_PATH . '/includes/html.php';
+            include CPM_PATH . '/includes/shortcodes.php';
+        }
 
-		include_once CPM_PATH . '/includes/urls.php';
-		include_once CPM_PATH . '/includes/html.php';
-		include_once CPM_PATH . '/includes/shortcodes.php';
-		
 	}
 
 	/**
-	 * CPM function
-	 *
-	 * @since 1.1
-	 * @return void
-	 */
+     * CPM function
+     *
+     * @since 1.1
+     * @return void
+     */
 	function cpm_function() {
-		include_once CPM_PATH . '/includes/functions.php';
-	}
-
-	/**
-	 * CPM API
-	 *
-	 * @since 1.2
-	 * @return void
-	 */
-	function api() {
-		require_once CPM_PATH . '/includes/cpm-api/api.php';
+        if ( is_admin() ) {
+            include CPM_PATH . '/includes/functions.php';
+        }
 	}
 
 
-	/**
-	 * CPM API
-	 *
-	 * @since 1.2
-	 * @return void
-	 */
-	public static function api_content() {
-		include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-projects.php';
-		include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-lists.php';
-		include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-tasks.php';
-		include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-messages.php';
-		include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-milestones.php';
-		include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-comments.php';
-	}
+    /**
+     * Report table html form
+     *
+     * @param obj $posts
+     * @since 1.2
+     * @return void
+     */
+    function generate_report_table( $posts, $data ) {
+        include CPM_PATH . '/views/report/table.php';
+    }
+
+    /**
+     * Report header
+     *
+     * @since 1.1
+     * @return void
+     */
+    function get_report_header() {
+        require_once CPM_PATH . '/views/report/header.php';
+    }
+
+    /**
+     * CPM API
+     *
+     * @since 1.2
+     * @return void
+     */
+    function api() {
+        require_once CPM_PATH . '/includes/cpm-api/api.php';
+    }
+
+
+    /**
+     * CPM API
+     *
+     * @since 1.2
+     * @return void
+     */
+    public static function api_content() {
+        include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-projects.php';
+        include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-lists.php';
+        include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-tasks.php';
+        include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-messages.php';
+        include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-milestones.php';
+        include_once CPM_PATH . '/includes/cpm-api/class-cpm-json-comments.php';
+    }
 
 	/**
 	 * Main output
@@ -98,116 +126,136 @@ class CPM_Router {
 	 * @return type
 	 */
 	static public function output() {
-		 echo '<div class="wrap cpm">';
+		echo '<div class="wrap cpm">';
 
-		$page = (isset( $_GET['page'] )) ? $_GET['page'] : '';
-		$tab = (isset( $_GET['tab'] )) ? $_GET['tab'] : '';
-		$action = (isset( $_GET['action'] )) ? $_GET['action'] : '';
+        $page         = (isset( $_GET['page'] )) ? $_GET['page'] : '';
+        $tab          = (isset( $_GET['tab'] )) ? $_GET['tab'] : '';
+        $action       = (isset( $_GET['action'] )) ? $_GET['action'] : '';
 
-		$project_id = (isset( $_GET['pid'] )) ? (int) $_GET['pid'] : 0;
-		$message_id = (isset( $_GET['mid'] )) ? (int) $_GET['mid'] : 0;
-		$tasklist_id = (isset( $_GET['tl_id'] )) ? (int) $_GET['tl_id'] : 0;
-		$task_id = (isset( $_GET['task_id'] )) ? (int) $_GET['task_id'] : 0;
-		$milestone_id = (isset( $_GET['ml_id'] )) ? (int) $_GET['ml_id'] : 0;
+        $project_id   = (isset( $_GET['pid'] )) ? (int) $_GET['pid'] : 0;
+        $message_id   = (isset( $_GET['mid'] )) ? (int) $_GET['mid'] : 0;
+        $tasklist_id  = (isset( $_GET['tl_id'] )) ? (int) $_GET['tl_id'] : 0;
+        $task_id      = (isset( $_GET['task_id'] )) ? (int) $_GET['task_id'] : 0;
+        $milestone_id = (isset( $_GET['ml_id'] )) ? (int) $_GET['ml_id'] : 0;
 
-		$default_file = CPM_PATH . '/views/project/index.php';
-		$file = false;
-		switch ($page) {
-			case 'cpm_projects':
+        $cpm_path     = CPM_PATH;
+        $cpm_path     = apply_filters( 'cpm_tab_cpm_path', $cpm_path );
 
-				switch ($tab) {
-					case 'project':
+        $default_file = $cpm_path . '/views/project/index.php';
 
-						switch ($action) {
-							case 'index':
-								$file = CPM_PATH . '/views/project/index.php';
-								break;
+        switch ($page) {
+            case 'cpm_projects':
 
-							case 'single':
-								$file = CPM_PATH . '/views/project/single.php';
-								break;
+                switch ($tab) {
+                    case 'settings':
+                        switch( $action ) {
+                            case 'index':
+                                $file = $cpm_path . '/views/project/settings.php';
+                                break;
+                        }
+                        break;
+                    case 'project':
 
-							default:
+                        switch ($action) {
+                            case 'index':
+                                $file = $cpm_path . '/views/project/index.php';
+                                break;
 
-								$file = CPM_PATH . '/views/project/index.php';
-								break;
-						}
+                            case 'single':
+                                $file = $cpm_path . '/views/project/single.php';
+                                break;
 
-						break;
+                            default:
+                                $file = $cpm_path . '/views/project/index.php';
+                                break;
+                        }
 
-					case 'message':
-						switch ($action) {
-							case 'index':
-								$file = CPM_PATH . '/views/message/index.php';
-								break;
+                        break;
 
-							case 'single':
-								$file = CPM_PATH . '/views/message/single.php';
-								break;
+                    case 'message':
+                        switch ($action) {
+                            case 'index':
+                                $file = $cpm_path . '/views/message/index.php';
+                                break;
 
-							default:
-								$file = CPM_PATH . '/views/message/index.php';
-								break;
-						}
+                            case 'single':
+                                $file = $cpm_path . '/views/message/single.php';
+                                break;
 
-						break;
+                            default:
+                                $file = $cpm_path . '/views/message/index.php';
+                                break;
+                        }
 
-					case 'task':
-						switch ($action) {
+                        break;
 
-							case 'index':
-								$file = CPM_PATH . '/views/task/index.php';
-								break;
-							case 'single':
-								$file = CPM_PATH . '/views/task/single.php';
-								break;
+                    case 'task':
+                        switch ($action) {
+                            case 'index':
+                                $file = $cpm_path . '/views/task/index.php';
+                                break;
 
-							case 'task_single':
-								$file = CPM_PATH . '/views/task/task-single.php';
-								break;
+                            case 'single':
+                                $file = $cpm_path . '/views/task/single.php';
+                                break;
 
-							default:
-								$file = CPM_PATH . '/views/task/index.php';
-								break;
-						}
+                            case 'task_single':
+                                $file = $cpm_path . '/views/task/task-single.php';
+                                break;
 
-						break;
+                            default:
+                                $file = $cpm_path . '/views/task/index.php';
+                                break;
+                        }
 
-					case 'milestone':
-						switch ($action) {
-							case 'index':
-								$file = CPM_PATH . '/views/milestone/index.php';
-								break;
+                        break;
 
-							default:
-								$file = CPM_PATH . '/views/milestone/index.php';
-								break;
-						}
+                    case 'milestone':
+                        switch ($action) {
+                            case 'index':
+                                $file = $cpm_path . '/views/milestone/index.php';
+                                break;
 
-						break;
+                            default:
+                                $file = $cpm_path . '/views/milestone/index.php';
+                                break;
+                        }
 
-					case 'files':
-						$file = CPM_PATH . '/views/files/index.php';
-						break;
+                        break;
 
-					default:
-						$file = CPM_PATH . '/views/project/index.php';
-						break;
-				}
+                    case 'files':
+                        $file = $cpm_path . '/views/files/index.php';
+                        break;
 
-			default:
-				break;
-		}
-		
-		$file = apply_filters( 'cpm_tab_file', $file, $project_id, $page, $tab, $action );
 
-		if ( file_exists( $file )) {
-			require_once $file;
-		} else {
-			require_once $default_file;
-		}
+                    default:
+                        $file = $cpm_path . '/views/project/index.php';
+                        break;
+                }
+                break;
 
-		echo '</div>';
+            case 'cpm_calendar':
+                $file = $cpm_path . '/views/calendar/index.php';
+                break;
+            case 'cpm_reports':
+                $file = $cpm_path . '/views/report/index.php';
+                break;
+            case 'cpm_progress':
+                $file = $cpm_path . '/views/progress/progress.php';
+                break;
 
+            default:
+                break;
+        }
+
+        $file = apply_filters( 'cpm_tab_file', $file, $project_id, $page, $tab, $action );
+
+        if ( file_exists( $file )) {
+            require_once $file;
+        } else {
+            require_once $default_file;
+        }
+
+        echo '</div>';
 	}
 }

@@ -8,12 +8,12 @@ if ( !class_exists( 'WeDevs_Plugin_Update_Checker' ) ):
  * WeDevs Plugin update checker
  *
  * @author Tareq Hasan
- * @version 0.2
+ * @version 0.3
  */
 class WeDevs_Plugin_Update_Checker {
 
-    const endpoint = 'http://api.wedevs.com/update_check';
-    const base_url = 'https://wedevs.com/';
+    const api_endpoint = 'http://api.wedevs.com/';
+    const base_url     = 'https://wedevs.com/';
 
     private $file;
     private $product_id;
@@ -84,7 +84,12 @@ class WeDevs_Plugin_Update_Checker {
      * @return \stdClass|boolean
      */
     function plugin_information( $false, $action, $args ) {
-        if ( $args->slug != dirname( $this->file ) ) {
+
+        if ( $action != 'plugin_information' ) {
+            return $false;
+        }
+
+        if ( isset( $args->slug ) && $args->slug != dirname( $this->file ) ) {
             return $false;
         }
 
@@ -146,7 +151,7 @@ class WeDevs_Plugin_Update_Checker {
             )
         );
 
-        $request  = wp_remote_post( self::endpoint, $params );
+        $request  = wp_remote_post( self::api_endpoint . 'update_check', $params );
         $response = wp_remote_retrieve_body( $request );
 
         if ( is_wp_error( $request ) || $request['response']['code'] != 200 ) {

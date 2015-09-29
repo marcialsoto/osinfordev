@@ -23,9 +23,7 @@ if ( !$pro_obj->has_permission( $project ) ) {
 
             <div class="cpm-project-summary cpm-right">
                 <span><?php _e( 'Project Info', 'cpm' ); ?></span>
-                <div class="cpm-project-summary-content">
-                    <?php echo cpm_project_summary( $project->info ); ?>
-                </div>               
+                <?php echo cpm_project_summary( $project->info ); ?>
 
                 <?php do_action( 'cpm_project_header', $project ); ?>
             </div>
@@ -54,9 +52,8 @@ if ( !$pro_obj->has_permission( $project ) ) {
         ?>
     </div>
 
-   <!-- <div class="cpm-clear"></div> -->
-    <?php do_action( 'cpm_inside_project_filter', $project ); ?>
-   
+    <div class="cpm-clear"></div>
+    <div class="cpm-single-project-search-wrap"><input type="text" data-project_id="<?php echo $project_id; ?>" placeholder="<?php _e( 'Search...', 'cpm' ); ?>" id="cpm-single-project-search"></div>
 </div>
 
 <h2 class="nav-tab-wrapper">

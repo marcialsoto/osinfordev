@@ -17,6 +17,43 @@ class CPM_Admin {
 
         add_action( 'admin_init', array($this, 'admin_init') );
         add_action( 'admin_menu', array($this, 'admin_menu'), 50 );
+
+        add_action( 'profile_update', array( $this, 'update_user_profile' ), 10, 2 );
+        add_action('show_user_profile', array( $this, 'user_parofile' ) );
+        add_action('edit_user_profile', array( $this, 'user_parofile' ) );
+    }
+
+    /**
+     * User prfile update
+     *
+     * @since 1.1
+     *
+     * @return type
+     */
+    function update_user_profile( $user_id, $old_user_data ) {
+      
+        $daily_digest_active_status = isset( $_POST['cpm_daily_digets_status'] ) ? $_POST['cpm_daily_digets_status'] : 'off';
+        $email_notification_active_status = isset( $_POST['cpm_email_notification'] ) ? $_POST['cpm_email_notification'] : 'off';
+     
+        if ( is_admin() && current_user_can( 'edit_user' ) ) {
+            update_user_meta( $user_id, '_user_daily_digets_status', $daily_digest_active_status );
+            update_user_meta( $user_id, '_cpm_email_notification', $email_notification_active_status );
+        } 
+    }
+
+    /**
+     * User profile custom field add
+     *
+     * @since 1.1
+     *
+     * @return type
+     */
+    function user_parofile( $user ) {
+        if ( !is_admin() ) {
+            return;
+        }
+
+        include CPM_PATH . '/views/admin/user-profile.php';
     }
 
     function admin_init() {
@@ -55,14 +92,66 @@ class CPM_Admin {
      */
     static function get_settings_fields() {
         $settings_fields = array();
-        
+
+        global $wp_roles;
+
+        if ( !$wp_roles ) {
+            $wp_roles = new WP_Roles();
+        }
+
+        $role_names = $wp_roles->get_names();
+
         $settings_fields['cpm_general'] = apply_filters( 'cpm_settings_field_general', array(
             array(
                 'name'    => 'upload_limit',
                 'label'   => __('File Upload Limit', 'cpm'),
                 'default' => '2',
                 'desc'    => __('file size in Megabyte. e.g: 2')
-            )
+            ),
+
+            array(
+                'name'    => 'project_manage_role',
+                'label'   => __( 'Project Manage Capability', 'cpm' ),
+                'default' => array( 'editor' => 'editor', 'author' => 'author', 'administrator' => 'administrator' ),
+                'desc'    => __( 'Select the user role who can see and manage all projects', 'cpm' ),
+                'type'    => 'multicheck',
+                'options' => $role_names,
+            ),
+            array(
+                'name'    => 'project_create_role',
+                'label'   => __( 'Project Create Capability', 'cpm' ),
+                'default' => array( 'editor' => 'editor', 'author' => 'author', 'administrator' => 'administrator' ),
+                'desc'    => __( 'Select minimum user role who can create projects.', 'cpm' ),
+                'type'    => 'multicheck',
+                'options' => $role_names,
+            ),
+            array(
+                'name'    => 'task_start_field',
+                'label'   => __('Task start date', 'cpm'),
+                'type'    => 'checkbox',
+                'default' => 'off',
+                'desc'    => __('Enable task start date field')
+            ),
+            array(
+                'name'    => 'pagination',
+                'label'   => __('Number of project per page', 'cpm'),
+                'type'    => 'text',
+                'default' => '10',
+                'desc'    => __('-1 for unlimited', 'cpm')
+            ),
+
+            array(
+                'name'    => 'logo',
+                'label'   => __('Logo', 'cpm'),
+                'type'    => 'file'
+            ),
+            array(
+                'name'    => 'daily_digest',
+                'label'   => __('Daily Digest', 'cpm'),
+                'type'    => 'checkbox',
+                'default' => 'on',
+                'desc'    => __('Enable Daily Digest', 'cpm')
+            ),
         ));
 
         $settings_fields['cpm_mails'] = apply_filters( 'cpm_settings_field_mail', array(
@@ -84,10 +173,6 @@ class CPM_Admin {
                     'text/plain' => __( 'Plain Text', 'cpm')
                 )
             ),
-            /**
-             * ************************
-             */
-            /*
             array(
                 'name'    => 'new_project_sub',
                 'label'   => __( 'New Project Subject', 'cpm' ),
@@ -175,7 +260,6 @@ Task URL: %TASK_URL%
 Task: %TASK%',
                 'desc' => 'use: %SITE%, %PROJECT_NAME%, %PROJECT_URL%, %TASKLIST_URL%, %TASK_URL%, %TASK%, %IP%'
             ),
-            */
             array(
                 'name'    => 'email_bcc_enable',
                 'label'   => __('Send email via Bcc', 'cpm'),

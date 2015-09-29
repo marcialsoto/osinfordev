@@ -168,6 +168,8 @@
                             location.href = resp.data.url;
                         }
 
+
+
                     };
                 });
 
@@ -430,7 +432,7 @@
                             .next('.cpm-milestone-edit-form').html(res.content).fadeIn();
 
                         $('.datepicker').datepicker();
-                        //console.log($('#cpm-milestone-editor-'+res.id) );
+                        console.log($('#cpm-milestone-editor-'+res.id) );
                         weDevs_CPM.tinymceInit('cpm-milestone-editor-'+res.id);
                     }
                 });

@@ -7,8 +7,8 @@
     }
 
     cpm_get_email_header();
-
-    $tpbk = CPM_URL . '/assets/images/tpbk.png';
+	$new      = CPM_URL . '/assets/images/new.png';
+	$triangle = CPM_URL . '/assets/images/triangle.png';
 
 	$msg_obj     = CPM_Message::getInstance();
 	$parent_post = get_post( $data['comment_post_ID'] );
@@ -17,20 +17,14 @@
 
     switch ($parent_post->post_type) {
         case 'message':
-            $type = __( 'Message', 'cpm' );
-            $title = $parent_post->post_title;
             $comment_url = cpm_url_single_message( $project_id, $data['comment_post_ID'] );
             break;
 
         case 'task_list':
-            $title = $parent_post->post_title;
-            $type = __( 'Task List', 'cpm' );
             $comment_url = cpm_url_single_tasklist( $project_id, $parent_post->ID );
             break;
 
         case 'task':
-            $type = __( 'Task', 'cpm' );
-            $title = $parent_post->post_title;
             $comment_url = cpm_url_single_task( $project_id, $parent_post->post_parent, $parent_post->ID );
             break;
     }
@@ -60,46 +54,39 @@
     }
 ?>
 
-<div style="width:600px;  background: #fff;">
+  	<table width="600" style="margin-top: 50px; background: #fff;">
+    	<tr>
+    		<td>
+    			<center><img src="<?php echo $new; ?>"/></center>
+    		</td>
+    	</tr> 
+    	<tr>
+    		<td>
+    			<center><div style="font-size: 45px; padding-top: 38px;"><?php _e( 'A NEW COMMENT', 'cpm' );?></div></center>
+    		</td>
+    	</tr>
+    </table>
 
-        <div style="width: 600px;">
-            <div style="background-image: url('<?php echo $tpbk; ?>'); background-repeat: no-repeat; height: 174px; width: 600px;">
-                <div style="font-family: 'Lato', sans-serif; font-wight: bold; color: #fff; font-size: 30px; padding-top: 26px; text-align: center;">
-                    <?php _e( 'NEW COMMENT', 'cpm'  ); ?>
-                </div>
-            </div>
+    <table cellspacing="0" width="600" style="margin-top: 50px;">
+		<!-- <tr>
+			<td style="position: relative;"><img style="position: absolute; left: 48%; top: -8px;" src="<?php echo $triangle; ?>"/></td>
+		</tr> -->
+		<tr>
+			<td style="background: #eee;  padding-top: 5px; padding-bottom: 5px;">
+				<center>
+					<table width="560" style="border-collapse:separate; border-spacing:0 20px;">
+				
+					        <tr>
+					        	<td style="width: 560px; color: #717171; text-align: center; line-height: 30px;">
+					        		<center><?php echo $message; ?></center>
+					        	</td>
+					        </tr>
 
-        </div>
-        <div style="padding: 0 50px; text-align: justify; background-repeat: no-repeat; ">
-                <div style="margin: 40px 0 10px; margin-bottom: 20px;">
-                    <em style="font-family: lato; color: #B3B3B3;padding-right: 5px;"><?php _e( 'Commented By', 'cpm' ); ?></em>
-                    <strong style="font-family: lato; color: #7e7e7e; padding-right: 10px;">
-                        <?php echo $author->display_name; ?>
-                    </strong>
-                    <em style="font-family: lato; color: #B3B3B3; "><?php _e( 'On', 'cpm' ); ?></em>
-                    <strong style="font-family: lato; color: #7e7e7e;">
-                        <span style="padding-right: 5px;"><?php echo $type; ?></span><a style="text-decoration: none; font-family: lato; color: #00b1e7; " href="<?php echo $comment_url; ?>"><?php echo $title; ?></a>
-                    </strong>
-                </div>
-
-                <div style="font-family: arial; font-size: 14px; line-height: 24px; color: #7e7e7e;">
-                   <!--  <strong><?php _e( 'Author : '); ?></strong>
-                    <?php echo $author->display_name; ?>
-                    <strong style="margin-left: 10px;"><?php _e( 'Permalink : ' ); ?></strong>
-                    <a style="text-decoration: none; font-family: lato; color: #00b1e7;" href="<?php echo $comment_url; ?>"><?php _e('Comment link', 'cpm'); ?></a>
-                    <strong style="margin-left: 10px;"><?php _e( 'Comment : ' ); ?></strong> -->
-                    <?php echo $data['comment_content']; ?>
-                </div>
-
-        </div>
-        <center>
-            <div style="padding: 18px; margin: 30px 0 45px; border-radius: 30px; background: #00b1e7; width: 171px;">
-
-                <a href="<?php echo $comment_url; ?>" style="font-family: lato; font-size: 16px; text-decoration: none; color: #fff;">
-                    <?php _e( 'View Comment', 'cpm' ); ?>
-                </a>
-
-            </div>
-        </center>
-</div>               
-<?php cpm_get_email_footer(); ?>
+					</table>
+				</center>
+			</td>
+		</tr>
+		<tr>
+			<td><?php cpm_get_email_footer(); ?></td>
+		</tr>
+	</table>

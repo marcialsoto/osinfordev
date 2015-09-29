@@ -539,11 +539,11 @@ class CPM_Project {
             __( 'Files', 'cpm' )       => cpm_url_file_index( $project_id ),
         );
 
+        $links =  apply_filters( 'cpm_project_nav_links', $links, $project_id );
+
         if( cpm_user_can_access( $project_id ) ) {
             $links[__( 'Settings', 'cpm' )] = cpm_url_settings_index( $project_id );
         }
-
-        $links =  apply_filters( 'cpm_project_nav_links', $links, $project_id );
 
         return $links;
     }

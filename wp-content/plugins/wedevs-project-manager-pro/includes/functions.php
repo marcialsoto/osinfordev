@@ -34,7 +34,20 @@ function cpm_tasks_filter( $tasks ) {
 
 
 function cpm_project_filters(){
+    $category = isset( $_GET['project_cat'] ) ? $_GET['project_cat'] : '';
+    $status = isset( $_GET['project_status'] ) ? $_GET['project_status'] : '';
+    $action = isset( $_GET['status'] ) ? $_GET['status'] : '';
+    $searchitem = isset( $_GET['searchitem'] ) ? $_GET['searchitem'] : '';
+    $page_id = ( !is_admin() ) ? get_the_ID() : '';
+
     ?>
+    <form action="" method="get" class="cpm-project-filters" id="cpm-project-filters">
+        <?php echo cpm_filter_category( $category ); ?>
+        <input type="hidden" name="p" value="<?php echo $page_id; ?>" />
+        <input type="hidden" name="status" value="<?php echo $action; ?>" />
+        <input type="hidden" name="page" value="cpm_projects" />
+        <input type="submit" name="submit" id="project-filter-submit" class="button" value="<?php esc_attr_e( 'Filter', 'cpm' ); ?>">
+    </form>
     <input type="text" id="cpm-search-client" name="searchitem" placeholder="<?php _e( 'Search by Client...', 'cpm' ); ?>" value="" />
     <input type="text" id="cpm-all-search" name="searchitem" placeholder="<?php _e( 'Search All...', 'cpm' ); ?>" value="" />
     <?php
@@ -140,8 +153,8 @@ function cpm_dropdown_users( $selected = array() ) {
  */
 function cpm_date2mysql( $date, $gmt = 0 ) {
     $time = strtotime( $date );
-    //return ( $gmt ) ? gmdate( 'Y-m-d H:i:s', $time ) : get_gmt_from_date( date( 'Y-m-d H:i:s', strtotime( $date ) ) ); //gmdate( 'Y-m-d H:i:s', ( $time + ( get_option( 'timezone_string' ) * 3600 ) ) );
-    return ( $gmt ) ? gmdate( 'Y-m-d H:i:s', $time ) : gmdate( 'Y-m-d H:i:s',strtotime( $date ) );
+
+    return ( $gmt ) ? gmdate( 'Y-m-d H:i:s', $time ) : get_gmt_from_date( date( 'Y-m-d H:i:s', strtotime( $date ) ) ); //gmdate( 'Y-m-d H:i:s', ( $time + ( get_option( 'timezone_string' ) * 3600 ) ) );
 }
 
 /**
@@ -151,25 +164,19 @@ function cpm_date2mysql( $date, $gmt = 0 ) {
  * @param int $project_id
  */
 function cpm_user_checkboxes( $project_id ) {
-    $pro_obj  = CPM_Project::getInstance();
-    $users    = $pro_obj->get_users( $project_id );
+    $pro_obj = CPM_Project::getInstance();
+    $users = $pro_obj->get_users( $project_id );
     $cur_user = get_current_user_id();
 
-    // remove current logged in user from list
+    //remove current logged in user from list
     if ( array_key_exists( $cur_user, $users ) ) {
         unset( $users[$cur_user] );
     }
 
-    foreach ($users as $key => $user) {
-        $sort[$key]  = strtolower( $user['name'] );
-    }
-
     if ( $users ) {
-        array_multisort( $sort, SORT_ASC, $users );
-
         foreach ($users as $user) {
             $check = sprintf( '<input type="checkbox" name="notify_user[]" id="cpm_notify_%1$s" value="%1$s" />', $user['id'] );
-            printf( '<label for="cpm_notify_%d">%s %s</label> ', $user['id'], $check, ucwords(strtolower( $user['name'] )) );
+            printf( '<label for="cpm_notify_%d">%s %s</label> ', $user['id'], $check, $user['name'] );
         }
     } else {
         echo __( 'No users found', 'cpm' );
@@ -469,30 +476,30 @@ function cpm_project_summary( $info ) {
     $info_array = array();
 
     if( $info->discussion ) {
-        $info_array[] = sprintf( _n( '<strong>%d </strong> Message', '<strong>%d </strong> Messages', $info->discussion, 'cpm' ), $info->discussion );
+        $info_array[] = sprintf( _n( '%d message', '%d messages', $info->discussion, 'cpm' ), $info->discussion );
     }
 
     if( $info->todolist ) {
-        $info_array[] = sprintf( _n( '<strong>%d </strong> To-do list', '<strong>%d </strong> To-do lists', $info->todolist, 'cpm' ), $info->todolist );
+        $info_array[] = sprintf( _n( '%d to-do list', '%d to-do lists', $info->todolist, 'cpm' ), $info->todolist );
     }
 
     if( $info->todos ) {
-        $info_array[] = sprintf( _n( '<strong>%d </strong> To-do', '<strong>%d </strong> To-dos', $info->todos, 'cpm' ), $info->todos );
+        $info_array[] = sprintf( _n( '%d to-do', '%d to-dos', $info->todos, 'cpm' ), $info->todos );
     }
 
     if( $info->comments ) {
-        $info_array[] = sprintf( _n( '<strong>%d </strong> Comment', '<strong>%d </strong> Comments', $info->comments, 'cpm' ), $info->comments );
+        $info_array[] = sprintf( _n( '%d comment', '%d comments', $info->comments, 'cpm' ), $info->comments );
     }
 
     if( $info->files ) {
-        $info_array[] = sprintf( _n( '<strong>%d </strong> File', '<strong>%d </strong> Files', $info->files, 'cpm' ), $info->files );
+        $info_array[] = sprintf( _n( '%d file', '%d files', $info->files, 'cpm' ), $info->files );
     }
 
     if( $info->milestone ) {
-        $info_array[] = sprintf( _n( '<strong>%d </strong> Milestone', '<strong>%d </strong> Milestones', $info->milestone, 'cpm' ), $info->milestone );
+        $info_array[] = sprintf( _n( '%d milestone', '%d milestones', $info->milestone, 'cpm' ), $info->milestone );
     }
 
-    return implode(' <br/>', $info_array );
+    return implode(', ', $info_array );
 }
 
 /**
@@ -755,10 +762,6 @@ function cpm_project_user_role( $project_id ) {
 
 function cpm_is_single_project_manager( $project_id ) {
 
-    if ( ! cpm_is_pro() ) {
-        return true;
-    }
-
     $project_user_role = cpm_project_user_role( $project_id );
 
     if ( $project_user_role == 'manager' ) {
@@ -769,11 +772,6 @@ function cpm_is_single_project_manager( $project_id ) {
 }
 
 function cpm_manage_capability( $option_name = 'project_manage_role' ) {
-
-    if ( ! cpm_is_pro() ) {
-        return true;
-    }
-
     global $current_user;
 
     if ( ! $current_user ) {
@@ -791,10 +789,6 @@ function cpm_manage_capability( $option_name = 'project_manage_role' ) {
 }
 
 function cpm_user_can_delete_edit( $project_id, $list ) {
-
-    if ( ! cpm_is_pro() ) {
-        return true;
-    }
 
     global $current_user;
 
@@ -818,11 +812,6 @@ function cpm_user_can_delete_edit( $project_id, $list ) {
  */
 
 function cpm_user_can_access( $project_id, $section='' ) {
-
-    if ( ! cpm_is_pro() ) {
-        return true;
-    }
-
     global $current_user;
 
     $login_user = apply_filters( 'cpm_current_user_access', $current_user, $project_id, $section );
@@ -848,11 +837,6 @@ function cpm_user_can_access( $project_id, $section='' ) {
 }
 
 function cpm_user_can_access_file( $project_id, $section, $is_private ) {
-
-    if ( ! cpm_is_pro() ) {
-        return true;
-    }
-
     if ( $is_private == 'no' ) {
         return true;
     }
@@ -1085,7 +1069,7 @@ function cpm_get_all_manager_from_project( $project_id ) {
  */
 
 function cpm_get_email_header() {
-    $file_path   = CPM_PATH . '/views/emails/header.php';
+    $file_path   = dirname (__FILE__) . '/../views/emails/header.php';
     $header_path = apply_filters( 'cpm_email_header', $file_path );
 
     if ( file_exists( $header_path ) ) {
@@ -1104,7 +1088,7 @@ function cpm_get_email_header() {
  */
 
 function cpm_get_email_footer() {
-    $file_path   = CPM_PATH . '/views/emails/footer.php';
+    $file_path   = dirname (__FILE__) . '/../views/emails/footer.php';
     $footer_path = apply_filters( 'cpm_email_footer', $file_path );
 
     if ( file_exists( $footer_path ) ) {
@@ -1179,27 +1163,4 @@ function cpm_message() {
     return apply_filters( 'cpm_message', $message );
 }
 
-function cpm_is_pro() {
 
-    if ( file_exists( CPM_PATH . '/includes/pro/loader.php' ) ) {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Wrapper function for string length
- *
- * @since 1.3
- *
- * @param  string  $string
- *
- * @return int
- */
-function cpm_strlen( $string ) {
-    if ( function_exists( 'mb_strlen' ) ) {
-        return mb_strlen( $string );
-    } else {
-        return strlen( $string );
-    }
-}

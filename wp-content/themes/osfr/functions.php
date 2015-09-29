@@ -48,3 +48,19 @@ function my_login_logo_url_title() {
     return 'Ir a Osinfor';
 }
 add_filter( 'login_headertitle', 'my_login_logo_url_title' );
+
+add_filter( 'bp_login_redirect', 'bpdev_redirect_to_profile', 11, 3 );
+ 
+function bpdev_redirect_to_profile( $redirect_to_calculated, $redirect_url_specified, $user ){
+ 
+    if( empty( $redirect_to_calculated ) )
+        $redirect_to_calculated = admin_url();
+ 
+    //if the user is not site admin,redirect to his/her profile
+ 
+    if( isset( $user->ID) && ! is_super_admin( $user->ID ) )
+        return bp_core_get_user_domain( $user->ID );
+    else
+        return $redirect_to_calculated; /*if site admin or not logged in, do not do anything much*/
+ 
+}

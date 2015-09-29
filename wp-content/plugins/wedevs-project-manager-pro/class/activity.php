@@ -7,8 +7,6 @@
  */
 class CPM_Activity {
 
-    private static $_instance;
-
     function __construct() {
         //project
         add_action( 'cpm_project_new', array($this, 'project_new') );
@@ -42,14 +40,6 @@ class CPM_Activity {
         add_action( 'cpm_milestone_delete', array($this, 'milestone_delete') );
         add_action( 'cpm_milestone_complete', array($this, 'milestone_done') );
         add_action( 'cpm_milestone_open', array($this, 'milestone_open') );
-    }
-
-    public static function getInstance() {
-        if ( !self::$_instance ) {
-            self::$_instance = new self();
-        }
-
-        return self::$_instance;
     }
 
     function user_url() {
