@@ -1,5 +1,7 @@
 jQuery(document).ready(function(){
 	jQuery("body a[href$='.jpg'], body a[href$='.jpeg'], body a[href$='.png'], body a[href$='.gif']").addClass('group1');
+        jQuery("body a[class*='catalog_group']").removeClass('group1');
+        jQuery("body a[class*='catalog_slider_group1']").removeClass('group1');
 	
 	
 	jQuery('a[href*="youtube.com"],a[href*="youtu.bebe"]').not('.huge_it_gallery_item').not('.huge_it_videogallery_item').not('.huge_it_portfolio_item').each(function(){

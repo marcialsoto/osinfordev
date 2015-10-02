@@ -1,10 +1,10 @@
 === Lightbox ===
 Contributors: Huge-IT
 Donate link: http://huge-it.com/lightbox/
-Tags: lightbox, Lightbox slider, lightview, overlay, popup, popup image, popup images, colorbox, lightbox popup, lightbox pop, on click popup, onclick popup, popup box, style lightbox, fancybox, wordpress image lightbox, wordpress lightbox, wordpress popup, popup photo, photo, shadowbox, img, image, thickbox, open image, video lightbox, vimeo, youtube, wordpress youtube, popups, responsive lightbox, WP Lightbox, pop-up, light box, exit lightbox, lightbox youtube, lightbox photo, image popup, jquery popup, video popup, prettyphoto lightbox, quick popup, slimbox, simple popup, custom popup, slideshow lightbox, Responsive Popup, popup, popup lightbox, popup video, popup window, plugin for gallery, display, photos, lightbox gallery, gallery lightbox, image lightbox, pictures, picture, image, images, img, png, jpg, video, popup bar,
+Tags: lightbox, Lightbox slider,slideshow , image rotator, lightview, overlay, popup, popup image, popup images, colorbox, lightbox popup, lightbox pop, on click popup, onclick popup, popup box, style lightbox, fancybox, wordpress image lightbox, wordpress lightbox, wordpress popup, popup photo, photo, shadowbox, image, thickbox, open image, video lightbox, vimeo, youtube, wordpress youtube, popups, responsive lightbox, WP Lightbox, pop-up, light box, exit lightbox, lightbox youtube, youtube player, vimeo link, vimeo player, vimeo popup, lightbox photo, image popup, jquery popup, video popup, prettyphoto lightbox, quick popup, slimbox, simple popup, custom popup, slideshow lightbox, Responsive Popup, popup, popup lightbox, popup video, popup window, plugin for gallery, display, photos, lightbox gallery, gallery lightbox, image lightbox, pictures, picture, image, images, video, popup bar, lightbox image, wordpress slideshow lightbox, responsive, adaptive, adaptive design, pages, page, post, posts, widget,
 Requires at least: 3.0.1
-Tested up to: 4.2.3
-Stable tag: 1.5.2
+Tested up to: 4.3.1
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,9 @@ If you use multi site (have number of sites) when you install a plugin in main s
 ### If you think, that you found a bug in our [WordPress Lightbox](http://huge-it.com/lightbox/) plugin or have any question contact us at [info@huge-it.com](mailto:info@huge-it.com).
 
 == Changelog ==
+
+= 1.5.3 =
+*  Bug fixed in Lightbox.
 
 = 1.5.2 =
 *  Bug fixed in Lightbox.
